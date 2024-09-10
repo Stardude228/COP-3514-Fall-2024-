@@ -29,8 +29,14 @@ int main()
 
         if(hours <= 25 && hours >= 0){
             if(days > 0){
-                charge = (days * 80) + (hours * 8);
-                printf("Charge($): %d", charge);
+                if ((hours * 8) > 80){
+                    charge = (days * 80) + 80;
+                    printf("Charge($): %d", charge);
+                }
+                else {
+                    charge = (days * 80) + (hours * 8);
+                    printf("Charge($): %d", charge);
+                }
             }
             else{
                 if(hours <= 3){
@@ -59,8 +65,14 @@ int main()
 
         if(hours <= 25 && hours >= 0){
             if(days > 0){
-                charge = (days * 120) + (hours * 12);
-                printf("Charge($): %d", charge);
+                if ((hours * 12) > 120){
+                    charge = (days * 120) + 120;
+                    printf("Charge($): %d", charge);
+                }
+                else {
+                    charge = (days * 120) + (hours * 12);
+                    printf("Charge($): %d", charge);
+                }
             }
             else{
                 if(hours <= 3){
@@ -88,8 +100,14 @@ int main()
 
         if(hours <= 25 && hours >= 0){
             if(days > 0){
-                charge = (days * 150) + (hours * 15);
-                printf("Charge($): %d", charge);
+                if ((hours * 15) > 150){
+                    charge = (days * 150) + 150;
+                    printf("Charge($): %d", charge);
+                }
+                else {
+                    charge = (days * 150) + (hours * 15);
+                    printf("Charge($): %d", charge);
+                }
             }
             else{
                 if(hours <= 3){
@@ -118,8 +136,14 @@ int main()
 
         if(hours <= 25 && hours >= 0){
             if(days > 0){
-                charge = (days * 250) + (hours * 20);
-                printf("Charge($): %d", charge);
+                if ((hours * 20) > 250){
+                    charge = (days * 250) + 250;
+                    printf("Charge($): %d", charge);
+                }
+                else {
+                    charge = (days * 250) + (hours * 20);
+                    printf("Charge($): %d", charge);
+                }
             }
             else{
                 if(hours <= 3){
