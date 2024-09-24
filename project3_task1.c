@@ -36,12 +36,13 @@ int main()
     int numbers[sequence_size];
 
     /* Gathering the array of numbers from user */
-    printf("Enter the numbers: ");
+    printf("Enter numbers: ");
     for (int i = 0; i < sequence_size; i++)
     {
         scanf("%d", &numbers[i]);
     }
 
+    /* For loop  */
     for (int i = 0; i < sequence_size; i++)
     {
         if (numbers[i] < sequence_size)
