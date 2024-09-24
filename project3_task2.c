@@ -16,14 +16,14 @@ int unique_elements(int input[], int length, int output[]);
 int main() {
     // Declaring the array_size variable, which will hold the size of the array entered by the user
     int array_size;
-    printf("Enter the length of the sequence: ");
+    printf("Enter the size of sequence: ");
     // Reading the size of the array from the user
     scanf("%d", &array_size);
 
     // Arrays input_sequence and distinct_result, which will be passed as arguments when calling the unique_elements function
     int input_sequence[array_size];
     int distinct_result[array_size];
-    printf("Enter the sequence: ");
+    printf("Enter numbers: ");
     // Taking elements of the array as input from the user
     for(int i = 0; i < array_size; i++) {
         scanf("%d", &input_sequence[i]);
@@ -37,7 +37,7 @@ int main() {
     sort_array(distinct_result, distinct_count);
     
     // Printing the sorted unique elements
-    printf("Distinct sorted output: ");
+    printf("Output: ");
     for(int i = 0; i < distinct_count; i++) {
         printf("%d ", distinct_result[i]);
     }
