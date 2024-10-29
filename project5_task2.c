@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     // Check if the number of arguments is exactly 3
     if (argc != 3)
     {
-        printf("invalid number of arguments===");
+        printf("invalid number of arguments");
         return 1;
     }
 
