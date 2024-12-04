@@ -1,11 +1,11 @@
 /*************************************/
-    /* Name: Oomat Latipov */
-    /* NetID: U13921223 */
-    /* Program Description: receives the registration linked list and the values for student name, NetID */
-    /* COP2510 grade, GPA, and number of previous attempts, and adds the new student to the registration  */
-    /* linked list so that the nodes in the list are kept in order by number of previous attempts in  */
-    /* decreasing order; students with the same number of previous attempts are inserted in first come,  */
-    /* first serve basis; */
+/* Name: Oomat Latipov */
+/* NetID: U13921223 */
+/* Program Description: receives the registration linked list and the values for student name, NetID */
+/* COP2510 grade, GPA, and number of previous attempts, and adds the new student to the registration  */
+/* linked list so that the nodes in the list are kept in order by number of previous attempts in  */
+/* decreasing order; students with the same number of previous attempts are inserted in first come,  */
+/* first serve basis; */
 /*************************************/
 
 #include <stdio.h>
@@ -14,223 +14,242 @@
 #include <ctype.h>
 
 // Data Definitions
-#define MAX_NAME_LEN 100
-#define MAX_ID_LEN 40
+#define MAX_NAME_LENGTH 100
+#define MAX_NETID_LENGTH 40
 
-typedef struct Student {
-    char full_name[MAX_NAME_LEN + 1], student_id[MAX_ID_LEN + 1], grade;
-    double grade_point_avg;
-    int attempts_count;
-    struct Student *next_student;
+typedef struct Student
+{
+    char studentName[MAX_NAME_LENGTH + 1];
+    char studentNetID[MAX_NETID_LENGTH + 1];
+    char cop2510Grade;
+    double studentGPA;
+    int attemptCount;
+    struct Student *nextStudent;
 } Student;
 
-// Function Prototypes
-void display_help();
-void read_input(char *full_name, char *student_id, char *grade, double *grade_point_avg, int *attempts_count);
-Student *enqueue_student(Student *head, char *full_name, char *student_id, char grade, double grade_point_avg, int attempts_count);
-Student *dequeue_student(Student *head);
-void print_all_students(Student *head);
-void print_students_with_min_gpa(Student *head, double min_gpa);
-void print_students_with_min_grade(Student *head, int min_grade);
-Student *clear_students(Student *head);
+// Function Declarations
+void displayHelp();
+void collectInput(char *name, char *netid, char *grade, double *gpa, int *attempts);
+Student *enqueueStudent(Student *head, char *name, char *netid, char grade, double gpa, int attempts);
+Student *dequeueStudent(Student *head);
+void printStudentList(Student *head);
+void filterByGPA(Student *head, double minimumGPA);
+void filterByGrade(Student *head, int minimumGrade);
+Student *clearQueue(Student *head);
 
-// Main Function
-int main() {
-    char operation;
-    char full_name[MAX_NAME_LEN + 1], student_id[MAX_ID_LEN + 1], grade;
-    double grade_point_avg;
-    int attempts_count;
-    Student *student_list = NULL;
+// Main Function 
+int main()
+{
+    char operationCode;
+    char inputName[MAX_NAME_LENGTH + 1];
+    char inputNetID[MAX_NETID_LENGTH + 1];
+    char inputGrade;
+    double inputGPA;
+    int inputAttempts;
+    Student *studentQueue = NULL;
 
-    display_help();
+    displayHelp();
     printf("\n");
 
-    for (;;) {
-        // Read operation code
+    while (1)
+    {
+        // Prompt for operation code
         printf("Enter operation code: ");
-        scanf(" %c", &operation);
-        while (getchar() != '\n') // Skip to end of line
-            ;
+        scanf(" %c", &operationCode);
+        while (getchar() != '\n')
+            ; // Clear input buffer
 
-        // Execute operation
-        switch (operation) {
-            case 'h':
-                display_help();
-                break;
-            case 'a':
-                read_input(full_name, student_id, &grade, &grade_point_avg, &attempts_count);
-                student_list = enqueue_student(student_list, full_name, student_id, grade, grade_point_avg, attempts_count);
-                break;
-            case 'p':
-                student_list = dequeue_student(student_list);
-                break;
-            case 'l':
-                print_all_students(student_list);
-                break;
-            case 'g':
-                read_input(NULL, NULL, NULL, &grade_point_avg, NULL);
-                print_students_with_min_gpa(student_list, grade_point_avg);
-                break;
-            case 'c':
-                read_input(NULL, NULL, &grade, NULL, NULL);
-                print_students_with_min_grade(student_list, grade);
-                break;
-            case 'q':
-                student_list = clear_students(student_list);
-                return 0;
-            default:
-                printf("Invalid operation code!\n");
+        // Execute selected operation
+        switch (operationCode)
+        {
+        case 'h':
+            displayHelp();
+            break;
+        case 'a':
+            collectInput(inputName, inputNetID, &inputGrade, &inputGPA, &inputAttempts);
+            studentQueue = enqueueStudent(studentQueue, inputName, inputNetID, inputGrade, inputGPA, inputAttempts);
+            break;
+        case 'p':
+            studentQueue = dequeueStudent(studentQueue);
+            break;
+        case 'l':
+            printStudentList(studentQueue);
+            break;
+        case 'g':
+            collectInput(NULL, NULL, NULL, &inputGPA, NULL);
+            filterByGPA(studentQueue, inputGPA);
+            break;
+        case 'c':
+            collectInput(NULL, NULL, &inputGrade, NULL, NULL);
+            filterByGrade(studentQueue, inputGrade);
+            break;
+        case 'q':
+            studentQueue = clearQueue(studentQueue);
+            return 0;
+        default:
+            printf("Invalid operation code!\n");
         }
         printf("\n");
     }
 }
 
-// Function Definitions
-void display_help() {
-    printf("Available operation codes:\n");
-    printf("\t'h' for displaying help;\n");
-    printf("\t'a' for adding a student to the queue;\n");
-    printf("\t'p' for removing a student from the queue;\n");
-    printf("\t'l' for listing all students in the queue;\n");
-    printf("\t'g' for listing students with a minimum GPA;\n");
-    printf("\t'c' for listing students with a minimum grade;\n");
-    printf("\t'q' to quit the program.\n");
+// Function Implementations //
+void displayHelp()
+{
+    printf("Available Operation Codes:\n");
+    printf("\t'h' - Display help menu\n");
+    printf("\t'a' - Add a student to the queue\n");
+    printf("\t'p' - Remove a student from the queue\n");
+    printf("\t'l' - List all students in the queue\n");
+    printf("\t'g' - List students with a minimum GPA\n");
+    printf("\t'c' - List students with a minimum COP2510 grade\n");
+    printf("\t'q' - Quit the program\n");
 }
 
-void read_input(char *full_name, char *student_id, char *grade, double *grade_point_avg, int *attempts_count) {
-    if (full_name != NULL) {
-        printf("Enter student's full name: ");
-        scanf("%[^\n]", full_name);
+void collectInput(char *name, char *netid, char *grade, double *gpa, int *attempts)
+{
+    if (name)
+    {
+        printf("Enter student name: ");
+        scanf("%[^\n]", name);
+        while (getchar() != '\n')
+            ;
     }
-    if (student_id != NULL) {
-        printf("Enter student's ID: ");
-        scanf("%s", student_id);
+    if (netid)
+    {
+        printf("Enter student NetID: ");
+        scanf("%s", netid);
     }
-    if (grade != NULL) {
-        printf("Enter student's grade (letter): ");
+    if (grade)
+    {
+        printf("Enter COP2510 grade: ");
         scanf(" %c", grade);
     }
-    if (grade_point_avg != NULL) {
-        printf("Enter student's GPA: ");
-        scanf("%lf", grade_point_avg);
+    if (gpa)
+    {
+        printf("Enter GPA: ");
+        scanf("%lf", gpa);
     }
-    if (attempts_count != NULL) {
-        printf("Enter student's number of attempts: ");
-        scanf("%d", attempts_count);
-    }
-}
-
-/// Converts grade letters to numeric values for comparison
-int map_grade_value(char grade) {
-    switch (toupper(grade)) {
-        case 'A': return 5;
-        case 'B': return 4;
-        case 'C': return 3;
-        case 'D': return 2;
-        case 'F': return 1;
-        default:  return 0;
+    if (attempts)
+    {
+        printf("Enter number of attempts: ");
+        scanf("%d", attempts);
     }
 }
 
-Student *enqueue_student(Student *head, char *full_name, char *student_id, char grade, double grade_point_avg, int attempts_count) {
-    Student *new_student = malloc(sizeof(Student));
-    if (new_student == NULL) {
-        printf("Error: Memory allocation failed in enqueue_student\n");
+// Map grades to numeric values for comparisons
+int mapGradeToValue(char grade)
+{
+    switch (toupper(grade))
+    {
+    case 'A':
+        return 5;
+    case 'B':
+        return 4;
+    case 'C':
+        return 3;
+    case 'D':
+        return 2;
+    case 'F':
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+Student *enqueueStudent(Student *head, char *name, char *netid, char grade, double gpa, int attempts)
+{
+    Student *newNode = malloc(sizeof(Student));
+    if (!newNode)
+    {
+        printf("Error: Memory allocation failed\n");
         return head;
     }
-    // Assign values
-    strncpy(new_student->full_name, full_name, MAX_NAME_LEN);
-    new_student->full_name[MAX_NAME_LEN] = '\0';
-    strncpy(new_student->student_id, student_id, MAX_ID_LEN);
-    new_student->student_id[MAX_ID_LEN] = '\0';
-    new_student->grade = toupper(grade);
-    new_student->grade_point_avg = grade_point_avg;
-    new_student->attempts_count = attempts_count;
-    new_student->next_student = NULL;
 
-    if (head == NULL || new_student->attempts_count > head->attempts_count) {
-        new_student->next_student = head;
-        return new_student;
+    strncpy(newNode->studentName, name, MAX_NAME_LENGTH);
+    newNode->studentName[MAX_NAME_LENGTH] = '\0';
+    strncpy(newNode->studentNetID, netid, MAX_NETID_LENGTH);
+    newNode->studentNetID[MAX_NETID_LENGTH] = '\0';
+    newNode->cop2510Grade = toupper(grade);
+    newNode->studentGPA = gpa;
+    newNode->attemptCount = attempts;
+    newNode->nextStudent = NULL;
+
+    if (!head || newNode->attemptCount > head->attemptCount)
+    {
+        newNode->nextStudent = head;
+        return newNode;
     }
 
     Student *current = head;
-    while (current->next_student != NULL && current->next_student->attempts_count > new_student->attempts_count) {
-        current = current->next_student;
+    while (current->nextStudent && current->nextStudent->attemptCount >= newNode->attemptCount)
+    {
+        current = current->nextStudent;
     }
-    new_student->next_student = current->next_student;
-    current->next_student = new_student;
 
+    newNode->nextStudent = current->nextStudent;
+    current->nextStudent = newNode;
     return head;
 }
 
-Student *dequeue_student(Student *head) {
-    if (head == NULL) {
-        return head;
-    }
-    Student *first_student = head;
-    printf("|----------------------|----------------------|---------|-----|----------|\n");
-    printf("| Name                 | ID                   | Grade   | GPA | Attempts |\n");
-    printf("|----------------------|----------------------|---------|-----|----------|\n");
-    printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", first_student->full_name, first_student->student_id, first_student->grade, first_student->grade_point_avg, first_student->attempts_count);
-    printf("|----------------------|----------------------|---------|-----|----------|\n");
-    head = first_student->next_student;
-    free(first_student);
+Student *dequeueStudent(Student *head)
+{
+    if (!head)
+        return NULL;
 
+    Student *temp = head;
+    printf("Dequeued Student: %s, NetID: %s\n", temp->studentName, temp->studentNetID);
+    head = head->nextStudent;
+    free(temp);
     return head;
 }
 
-void print_all_students(Student *head) {
-    if (head == NULL) {
-        return;
-    }
-    printf("|----------------------|----------------------|---------|-----|----------|\n");
-    printf("| Name                 | ID                   | Grade   | GPA | Attempts |\n");
-    printf("|----------------------|----------------------|---------|-----|----------|\n");
-    for (Student *current = head; current != NULL; current = current->next_student) {
-        printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", current->full_name, current->student_id, current->grade, current->grade_point_avg, current->attempts_count);
-        printf("|----------------------|----------------------|---------|-----|----------|\n");
+void printStudentList(Student *head)
+{
+    Student *current = head;
+    while (current)
+    {
+        printf("Name: %s, NetID: %s, Grade: %c, GPA: %.2f, Attempts: %d\n",
+            current->studentName, current->studentNetID,
+            current->cop2510Grade, current->studentGPA, current->attemptCount);
+        current = current->nextStudent;
     }
 }
 
-void print_students_with_min_gpa(Student *head, double min_gpa) {
-    int found = 0;
-    for (Student *current = head; current != NULL; current = current->next_student) {
-        if (current->grade_point_avg >= min_gpa) {
-            if (!found) {
-                printf("|----------------------|----------------------|---------|-----|----------|\n");
-                printf("| Name                 | ID                   | Grade   | GPA | Attempts |\n");
-                printf("|----------------------|----------------------|---------|-----|----------|\n");
-                found = 1;
-            }
-            printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", current->full_name, current->student_id, current->grade, current->grade_point_avg, current->attempts_count);
-            printf("|----------------------|----------------------|---------|-----|----------|\n");
+void filterByGPA(Student *head, double minimumGPA)
+{
+    Student *current = head;
+    while (current)
+    {
+        if (current->studentGPA >= minimumGPA)
+        {
+            printf("Name: %s, GPA: %.2f\n", current->studentName, current->studentGPA);
         }
+        current = current->nextStudent;
     }
 }
 
-void print_students_with_min_grade(Student *head, int min_grade) {
-    int found = 0;
-    char min_grade_char = toupper(min_grade);
-    int min_grade_val = map_grade_value(min_grade_char);
-
-    for (Student *current = head; current != NULL; current = current->next_student) {
-        if (map_grade_value(current->grade) >= min_grade_val) {
-            if (!found) {
-                printf("|----------------------|----------------------|---------|-----|----------|\n");
-                printf("| Name                 | ID                   | Grade   | GPA | Attempts |\n");
-                printf("|----------------------|----------------------|---------|-----|----------|\n");
-                found = 1;
-            }
-            printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", current->full_name, current->student_id, current->grade, current->grade_point_avg, current->attempts_count);
-            printf("|----------------------|----------------------|---------|-----|----------|\n");
+void filterByGrade(Student *head, int minimumGrade)
+{
+    Student *current = head;
+    int targetValue = mapGradeToValue(minimumGrade);
+    while (current)
+    {
+        if (mapGradeToValue(current->cop2510Grade) >= targetValue)
+        {
+            printf("Name: %s, Grade: %c\n", current->studentName, current->cop2510Grade);
         }
+        current = current->nextStudent;
     }
 }
 
-Student *clear_students(Student *head) {
-    while (head != NULL) {
-        Student *temp = head;
-        head = head->next_student;
+Student *clearQueue(Student *head)
+{
+    Student *current = head;
+    while (current)
+    {
+        Student *temp = current;
+        current = current->nextStudent;
         free(temp);
     }
     return NULL;
