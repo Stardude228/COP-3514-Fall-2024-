@@ -12,124 +12,116 @@
 #include <string.h>
 #include <ctype.h>
 
-//////////////////////
-// data definitions //
-//////////////////////
-#define MAX_NAME_LENGTH 100
-#define MAX_NETID_LENGTH 40
+// Definitions
+#define NAME_LEN 100
+#define NETID_LEN 40
 
-struct learner {
-    char full_name[MAX_NAME_LENGTH + 1], student_id[MAX_NETID_LENGTH + 1], course_grade;
-    double grade_point_average;
-    int retries;
-    struct learner *next_learner;
+struct student {
+    char name[NAME_LEN+1], netid[NETID_LEN+1], cop2510_grade;
+    double gpa;
+    int attempts;
+    struct student *next;
 };
 
-/////////////////////////
-// function prototypes //
-/////////////////////////
-void show_help();
-void gather_data(char *full_name, char *student_id, char *course_grade, double *grade_point_average, int *retries);
-struct learner *enroll_learner(struct learner *queue, char *full_name, char *student_id,
-                                char course_grade, double grade_point_average, int retries);
-struct learner *remove_learner(struct learner *queue);
-void display_learners(struct learner *queue);
-void display_min_gpa(struct learner *queue, double grade_point_average);
-void display_min_course_grade(struct learner *queue, int course_grade);
-struct learner *clear_queue(struct learner *queue);
+// Prototypes
+void help();
+void read(char *name, char *netid, char *cop2510_grade, double *gpa, int *attempts);
+struct student *add_student(struct student *registration, char *name, char *netid,
+                            char cop2510_grade, double gpa, int attempts);
+struct student *pop_student(struct student *registration);
+void list_students(struct student *registration);
+void list_gpa_min(struct student *registration, double gpa);
+void list_cop2510_min(struct student *registration, int cop2510_grade);
+struct student *clear_queue(struct student *registration);
 
-///////////////////
-// main function //
-///////////////////
+// Main
 int main() {
-    char action_code;
-    char full_name[MAX_NAME_LENGTH + 1], student_id[MAX_NETID_LENGTH + 1], course_grade;
-    double grade_point_average;
-    int retries;
-    struct learner *queue = NULL;
+    char code;
+    char name[NAME_LEN+1], netid[NETID_LEN+1], cop2510_grade;
+    double gpa;
+    int attempts;
+    struct student *registration = NULL;
 
-    show_help();
+    help();
     printf("\n");
 
     for (;;) {
-        // read action code
-        printf("Enter action code: ");
-        scanf(" %c", &action_code);
+        // read operation code
+        printf("Enter operation code: ");
+        scanf(" %c", &code);
         while (getchar() != '\n') /* skips to end of line */
             ;
 
-        // run action
-        switch (action_code) {
+        // run operation
+        switch (code) {
             case 'h':
-                show_help();
+                help();
                 break;
             case 'a':
-                gather_data(full_name, student_id, &course_grade, &grade_point_average, &retries);
-                queue = enroll_learner(queue, full_name, student_id, course_grade, grade_point_average, retries);
+                read(name, netid, &cop2510_grade, &gpa, &attempts);
+                registration = add_student(registration, name, netid, cop2510_grade, gpa, attempts);
                 break;
-            case 'r':
-                queue = remove_learner(queue);
+            case 'p':
+                registration = pop_student(registration);
                 break;
-            case 'd':
-                display_learners(queue);
+            case 'l':
+                list_students(registration);
                 break;
             case 'g':
-                gather_data(NULL, NULL, NULL, &grade_point_average, NULL);
-                display_min_gpa(queue, grade_point_average);
+                read(NULL, NULL, NULL, &gpa, NULL);
+                list_gpa_min(registration, gpa);
                 break;
             case 'c':
-                gather_data(NULL, NULL, &course_grade, NULL, NULL);
-                display_min_course_grade(queue, course_grade);
+                read(NULL, NULL, &cop2510_grade, NULL, NULL);
+                list_cop2510_min(registration, cop2510_grade);
                 break;
             case 'q':
-                queue = clear_queue(queue);
+                registration = clear_queue(registration);
                 return 0;
             default:
-                printf("Illegal action code!\n");
+                printf("Illegal operation code!\n");
         }
         printf("\n");
     }
 }
 
-//////////////////////////
-// function definitions //
-//////////////////////////
-void show_help() {
-    printf("List of action codes:\n");
+// Definitions
+void help() {
+    printf("List of operation codes:\n");
     printf("\t'h' for help;\n");
-    printf("\t'a' for adding a learner to the queue;\n");
-    printf("\t'r' for removing a learner from the queue;\n");
-    printf("\t'd' for displaying all learners in the queue;\n");
-    printf("\t'g' for searching learners with a minimum GPA;\n");
-    printf("\t'c' for searching learners with a minimum grade in the course;\n");
+    printf("\t'a' for adding a student to the queue;\n");
+    printf("\t'p' for removing a student from the queue;\n");
+    printf("\t'l' for listing all students in the queue;\n");
+    printf("\t'g' for searching students with a minimum GPA;\n");
+    printf("\t'c' for searching students with a minimum grade in COP2510;\n");
     printf("\t'q' to quit.\n");
 }
 
-void gather_data(char *full_name, char *student_id, char *course_grade, double *grade_point_average, int *retries) {
-    if (full_name != NULL) {
-        printf("Enter the full name of the learner: ");
-        scanf("%[^\n]", full_name);
+void read(char *name, char *netid, char *cop2510_grade, double *gpa, int *attempts) {
+    if (name != NULL) {
+        printf("Enter the name of the student: ");
+        scanf("%[^\n]", name);
     }
-    if (student_id != NULL) {
-        printf("Enter the Student ID: ");
-        scanf("%s", student_id);
+    if (netid != NULL) {
+        printf("Enter the NetID of the student: ");
+        scanf("%s", netid);
     }
-    if (course_grade != NULL) {
-        printf("Enter the course letter grade: ");
-        scanf(" %c", course_grade);
+    if (cop2510_grade != NULL) {
+        printf("Enter the COP2510 letter grade: ");
+        scanf(" %c", cop2510_grade);
     }
-    if (grade_point_average != NULL) {
+    if (gpa != NULL) {
         printf("Enter the GPA: ");
-        scanf("%lf", grade_point_average);
+        scanf("%lf", gpa);
     }
-    if (retries != NULL) {
+    if (attempts != NULL) {
         printf("Enter the number of previous attempts: ");
-        scanf("%d", retries);
+        scanf("%d", attempts);
     }
 }
 
-/// Function to map grades to numeric values for comparison
-int map_grade_value(char grade) {
+// Function to map grades to numeric values for comparison
+int grade_value(char grade) {
     switch (toupper(grade)) {
         case 'A': return 5;
         case 'B': return 4;
@@ -140,139 +132,139 @@ int map_grade_value(char grade) {
     }
 }
 
-struct learner * enroll_learner(struct learner *queue, char *full_name, char *student_id, char course_grade, double grade_point_average, int retries) {
-    struct learner *new_learner = malloc(sizeof(struct learner));
-    if (new_learner == NULL) {
-        printf("Error: malloc failed in enroll_learner\n");
-        return queue;
+struct student * add_student(struct student *registration, char *name, char *netid, char cop2510_grade, double gpa, int attempts) {
+    struct student *new_student = malloc(sizeof(struct student));
+    if (new_student == NULL) {
+        printf("Error: malloc failed in add_student\n");
+        return registration;
     }
     // Copy the data
-    strncpy(new_learner->full_name, full_name, MAX_NAME_LENGTH);
-    new_learner->full_name[MAX_NAME_LENGTH] = '\0';  // Ensure null termination
-    strncpy(new_learner->student_id, student_id, MAX_NETID_LENGTH);
-    new_learner->student_id[MAX_NETID_LENGTH] = '\0';  // Ensure null termination
-    new_learner->course_grade = toupper(course_grade); // Ensure uppercase
-    new_learner->grade_point_average = grade_point_average;
-    new_learner->retries = retries;
-    new_learner->next_learner = NULL;
+    strncpy(new_student->name, name, NAME_LEN);
+    new_student->name[NAME_LEN] = '\0';  // Ensure null termination
+    strncpy(new_student->netid, netid, NETID_LEN);
+    new_student->netid[NETID_LEN] = '\0';  // Ensure null termination
+    new_student->cop2510_grade = toupper(cop2510_grade); // Ensure uppercase
+    new_student->gpa = gpa;
+    new_student->attempts = attempts;
+    new_student->next = NULL;
 
-    // If the list is empty or new learner has higher retries than the head
-    if (queue == NULL || new_learner->retries > queue->retries) {
+    // If the list is empty or new student has higher attempts than the head
+    if (registration == NULL || new_student->attempts > registration->attempts) {
         // Insert at the beginning
-        new_learner->next_learner = queue;
-        queue = new_learner;
-        return queue;
+        new_student->next = registration;
+        registration = new_student;
+        return registration;
     }
 
-    struct learner *cur = queue;
-    // Move forward past learners with retries greater than new learner's retries
-    while (cur->next_learner != NULL && cur->next_learner->retries > new_learner->retries) {
-        cur = cur->next_learner;
+    struct student *cur = registration;
+    // Move forward past students with attempts greater than new student's attempts
+    while (cur->next != NULL && cur->next->attempts > new_student->attempts) {
+        cur = cur->next;
     }
-    // Move forward past learners with same number of retries to maintain first come, first serve
-    while (cur->next_learner != NULL && cur->next_learner->retries == new_learner->retries) {
-        cur = cur->next_learner;
+    // Move forward past students with same number of attempts to maintain first come, first serve
+    while (cur->next != NULL && cur->next->attempts == new_student->attempts) {
+        cur = cur->next;
     }
 
     // Insert after cur
-    new_learner->next_learner = cur->next_learner;
-    cur->next_learner = new_learner;
+    new_student->next = cur->next;
+    cur->next = new_student;
 
-    return queue;
+    return registration;
 }
 
-struct learner * remove_learner(struct learner *queue) {
-    if (queue == NULL) {
+struct student * pop_student(struct student *registration) {
+    if (registration == NULL) {
         // Do nothing if the list is empty
-        return queue;
+        return registration;
     }
-    // Print the information of the first learner
-    struct learner *first_learner = queue;
+    // Print the information of the first student
+    struct student *first_student = registration;
 
     // Output format
     printf("|----------------------|----------------------|---------|-----|----------|\n");
-    printf("| Full Name           | Student ID           | Course  | GPA | Retries  |\n");
+    printf("| Name                 | NetID                | COP2510 | GPA | Attempts |\n");
     printf("|----------------------|----------------------|---------|-----|----------|\n");
-    printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", first_learner->full_name, first_learner->student_id, first_learner->course_grade, first_learner->grade_point_average, first_learner->retries);
+    printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", first_student->name, first_student->netid, first_student->cop2510_grade, first_student->gpa, first_student->attempts);
     printf("|----------------------|----------------------|---------|-----|----------|\n");
 
-    // Remove the learner from the queue
-    queue = first_learner->next_learner;
-    free(first_learner);
+    // Remove the student from the queue
+    registration = first_student->next;
+    free(first_student);
 
-    return queue;
+    return registration;
 }
 
-void display_learners(struct learner *queue) {
-    if (queue == NULL) {
+void list_students(struct student *registration) {
+    if (registration == NULL) {
         // Do nothing
         return;
     }
 
-    struct learner *cur = queue;
+    struct student *cur = registration;
 
     // Output header
     printf("|----------------------|----------------------|---------|-----|----------|\n");
-    printf("| Full Name           | Student ID           | Course  | GPA | Retries  |\n");
+    printf("| Name                 | NetID                | COP2510 | GPA | Attempts |\n");
     printf("|----------------------|----------------------|---------|-----|----------|\n");
 
     while (cur != NULL) {
-        printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", cur->full_name, cur->student_id, cur->course_grade, cur->grade_point_average, cur->retries);
+        printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", cur->name, cur->netid, cur->cop2510_grade, cur->gpa, cur->attempts);
         printf("|----------------------|----------------------|---------|-----|----------|\n");
-        cur = cur->next_learner;
+        cur = cur->next;
     }
 }
 
-void display_min_gpa(struct learner *queue, double min_gpa) {
+void list_gpa_min(struct student *registration, double min_gpa) {
     int found = 0;
-    struct learner *cur = queue;
+    struct student *cur = registration;
 
     while (cur != NULL) {
-        if (cur->grade_point_average >= min_gpa) {
+        if (cur->gpa >= min_gpa) {
             if (!found) {
                 // Output header
                 printf("|----------------------|----------------------|---------|-----|----------|\n");
-                printf("| Full Name           | Student ID           | Course  | GPA | Retries  |\n");
+                printf("| Name                 | NetID                | COP2510 | GPA | Attempts |\n");
                 printf("|----------------------|----------------------|---------|-----|----------|\n");
                 found = 1;
             }
-            printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", cur->full_name, cur->student_id, cur->course_grade, cur->grade_point_average, cur->retries);
+            printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", cur->name, cur->netid, cur->cop2510_grade, cur->gpa, cur->attempts);
             printf("|----------------------|----------------------|---------|-----|----------|\n");
         }
-        cur = cur->next_learner;
+        cur = cur->next;
     }
-    // If no learners satisfy this condition, this function does nothing
+    // If no students satisfy this condition, this function does nothing
 }
 
-void display_min_course_grade(struct learner *queue, int course_grade) {
+void list_cop2510_min(struct student *registration, int cop2510_grade) {
     int found = 0;
-    struct learner *cur = queue;
-    char min_grade = toupper(course_grade);
-    int min_grade_value = map_grade_value(min_grade);
+    struct student *cur = registration;
+    char min_grade = toupper(cop2510_grade);
+    int min_grade_value = grade_value(min_grade);
 
     while (cur != NULL) {
-        int cur_grade_value = map_grade_value(cur->course_grade);
+        int cur_grade_value = grade_value(cur->cop2510_grade);
         if (cur_grade_value >= min_grade_value) {
             if (!found) {
                 // Output header
                 printf("|----------------------|----------------------|---------|-----|----------|\n");
-                printf("| Full Name           | Student ID           | Course  | GPA | Retries  |\n");
+                printf("| Name                 | NetID                | COP2510 | GPA | Attempts |\n");
                 printf("|----------------------|----------------------|---------|-----|----------|\n");
                 found = 1;
             }
-            printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", cur->full_name, cur->student_id, cur->course_grade, cur->grade_point_average, cur->retries);
+            printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", cur->name, cur->netid, cur->cop2510_grade, cur->gpa, cur->attempts);
             printf("|----------------------|----------------------|---------|-----|----------|\n");
         }
-        cur = cur->next_learner;
+        cur = cur->next;
     }
-    // If no learners satisfy this condition, this function does nothing
+    // If no students satisfy this condition, this function does nothing
 }
 
-struct learner * clear_queue(struct learner *queue) {
-    struct learner *cur = queue;
+struct student * clear_queue(struct student *registration) {
+    struct student *cur = registration;
     while (cur != NULL) {
-        struct learner *temp = cur;
-        cur = cur->next_learner;
+        struct student *temp = cur;
+        cur = cur->next;
         free(temp);
     }
     return NULL;
