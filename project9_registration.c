@@ -7,117 +7,116 @@
 /* decreasing order; students with the same number of previous attempts are inserted in first come,  */
 /* first serve basis; */
 /*************************************/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
-// data definitions 
-#define MAX_NAME_LEN 100
-#define MAX_ID_LEN 40
+// data definitions
+#define NAME_LEN 100
+#define NETID_LEN 40
 
-struct participant {
-    char full_name[MAX_NAME_LEN+1], id[MAX_ID_LEN+1], course_grade;
-    double performance_score;
-    int retry_count;
-    struct participant *next;
+struct student {
+    char name[NAME_LEN+1], netid[NETID_LEN+1], cop2510_grade;
+    double gpa;
+    int attempts;
+    struct student *next;
 };
 
-// function prototypes 
-void display_help();
-void input_data(char *full_name, char *id, char *course_grade, double *performance_score, int *retry_count);
-struct participant *add_participant(struct participant *list, char *full_name, char *id,
-char course_grade, double performance_score, int retry_count);
-struct participant *remove_participant(struct participant *list);
-void display_participants(struct participant *list);
-void filter_min_score(struct participant *list, double performance_score);
-void filter_min_grade(struct participant *list, int course_grade);
-struct participant *clear_list(struct participant *list);
+// function prototypes
+void help();
+void read(char *name, char *netid, char *cop2510_grade, double *gpa, int *attempts);
+struct student *add_student(struct student *registration, char *name, char *netid,
+                            char cop2510_grade, double gpa, int attempts);
+struct student *pop_student(struct student *registration);
+void list_students(struct student *registration);
+void list_gpa_min(struct student *registration, double gpa);
+void list_cop2510_min(struct student *registration, int cop2510_grade);
+struct student *clear_queue(struct student *registration);
 
 // main function
 int main() {
-    char operation;
-    char full_name[MAX_NAME_LEN+1], id[MAX_ID_LEN+1], course_grade;
-    double performance_score;
-    int retry_count;
-    struct participant *list = NULL;
+    char code;
+    char name[NAME_LEN+1], netid[NETID_LEN+1], cop2510_grade;
+    double gpa;
+    int attempts;
+    struct student *registration = NULL;
 
-    display_help();
+    help();
     printf("\n");
 
     for (;;) {
         // read operation code
         printf("Enter operation code: ");
-        scanf(" %c", &operation);
+        scanf(" %c", &code);
         while (getchar() != '\n') /* skips to end of line */
             ;
 
         // run operation
-        switch (operation) {
+        switch (code) {
             case 'h':
-                display_help();
+                help();
                 break;
             case 'a':
-                input_data(full_name, id, &course_grade, &performance_score, &retry_count);
-                list = add_participant(list, full_name, id, course_grade, performance_score, retry_count);
+                read(name, netid, &cop2510_grade, &gpa, &attempts);
+                registration = add_student(registration, name, netid, cop2510_grade, gpa, attempts);
                 break;
-            case 'r':
-                list = remove_participant(list);
+            case 'p':
+                registration = pop_student(registration);
                 break;
-            case 'd':
-                display_participants(list);
-                break;
-            case 's':
-                input_data(NULL, NULL, NULL, &performance_score, NULL);
-                filter_min_score(list, performance_score);
+            case 'l':
+                list_students(registration);
                 break;
             case 'g':
-                input_data(NULL, NULL, &course_grade, NULL, NULL);
-                filter_min_grade(list, course_grade);
+                read(NULL, NULL, NULL, &gpa, NULL);
+                list_gpa_min(registration, gpa);
+                break;
+            case 'c':
+                read(NULL, NULL, &cop2510_grade, NULL, NULL);
+                list_cop2510_min(registration, cop2510_grade);
                 break;
             case 'q':
-                list = clear_list(list);
+                registration = clear_queue(registration);
                 return 0;
             default:
-                printf("Invalid operation code!\n");
+                printf("Illegal operation code!\n");
         }
         printf("\n");
     }
 }
 
 // function definitions
-void display_help() {
+void help() {
     printf("List of operation codes:\n");
     printf("\t'h' for help;\n");
-    printf("\t'a' for adding a participant to the list;\n");
-    printf("\t'r' for removing a participant from the list;\n");
-    printf("\t'd' for displaying all participants in the list;\n");
-    printf("\t's' for searching participants with a minimum score;\n");
-    printf("\t'g' for searching participants with a minimum grade;\n");
+    printf("\t'a' for adding a student to the queue;\n");
+    printf("\t'p' for removing a student from the queue;\n");
+    printf("\t'l' for listing all students in the queue;\n");
+    printf("\t'g' for searching students with a minimum GPA;\n");
+    printf("\t'c' for searching students with a minimum grade in COP2510;\n");
     printf("\t'q' to quit.\n");
 }
 
-void input_data(char *full_name, char *id, char *course_grade, double *performance_score, int *retry_count) {
-    if (full_name != NULL) {
-        printf("Enter the participant's full name: ");
-        scanf("%[^\n]", full_name);
+void read(char *name, char *netid, char *cop2510_grade, double *gpa, int *attempts) {
+    if (name != NULL) {
+        printf("Enter the name of the student: ");
+        scanf("%[^\n]", name);
     }
-    if (id != NULL) {
-        printf("Enter the participant's ID: ");
-        scanf("%s", id);
+    if (netid != NULL) {
+        printf("Enter the NetID of the student: ");
+        scanf("%s", netid);
     }
-    if (course_grade != NULL) {
-        printf("Enter the course letter grade: ");
-        scanf(" %c", course_grade);
+    if (cop2510_grade != NULL) {
+        printf("Enter the COP2510 letter grade: ");
+        scanf(" %c", cop2510_grade);
     }
-    if (performance_score != NULL) {
-        printf("Enter the performance score: ");
-        scanf("%lf", performance_score);
+    if (gpa != NULL) {
+        printf("Enter the GPA: ");
+        scanf("%lf", gpa);
     }
-    if (retry_count != NULL) {
-        printf("Enter the number of retries: ");
-        scanf("%d", retry_count);
+    if (attempts != NULL) {
+        printf("Enter the number of previous attempts: ");
+        scanf("%d", attempts);
     }
 }
 
@@ -133,136 +132,138 @@ int grade_value(char grade) {
     }
 }
 
-struct participant * add_participant(struct participant *list, char *full_name, char *id, char course_grade, double performance_score, int retry_count) {
-    struct participant *new_participant = malloc(sizeof(struct participant));
-    if (new_participant == NULL) {
-        printf("Error: malloc failed in add_participant\n");
-        return list;
+struct student * add_student(struct student *registration, char *name, char *netid, char cop2510_grade, double gpa, int attempts) {
+    struct student *new_student = malloc(sizeof(struct student));
+    if (new_student == NULL) {
+        printf("Error: malloc failed in add_student\n");
+        return registration;
     }
     // Copy the data
-    strncpy(new_participant->full_name, full_name, MAX_NAME_LEN);
-    new_participant->full_name[MAX_NAME_LEN] = '\0';  // Ensure null termination
-    strncpy(new_participant->id, id, MAX_ID_LEN);
-    new_participant->id[MAX_ID_LEN] = '\0';  // Ensure null termination
-    new_participant->course_grade = toupper(course_grade); // Ensure uppercase
-    new_participant->performance_score = performance_score;
-    new_participant->retry_count = retry_count;
-    new_participant->next = NULL;
+    strncpy(new_student->name, name, NAME_LEN);
+    new_student->name[NAME_LEN] = '\0';  // Ensure null termination
+    strncpy(new_student->netid, netid, NETID_LEN);
+    new_student->netid[NETID_LEN] = '\0';  // Ensure null termination
+    new_student->cop2510_grade = toupper(cop2510_grade); // Ensure uppercase
+    new_student->gpa = gpa;
+    new_student->attempts = attempts;
+    new_student->next = NULL;
 
-    // If the list is empty or new participant has higher retries than the head
-    if (list == NULL || new_participant->retry_count > list->retry_count) {
+    // If the list is empty or new student has higher attempts than the head
+    if (registration == NULL || new_student->attempts > registration->attempts) {
         // Insert at the beginning
-        new_participant->next = list;
-        list = new_participant;
-        return list;
+        new_student->next = registration;
+        registration = new_student;
+        return registration;
     }
 
-    struct participant *cur = list;
-    // Move forward past participants with retries greater than the new participant
-    while (cur->next != NULL && cur->next->retry_count > new_participant->retry_count) {
+    struct student *cur = registration;
+    // Move forward past students with attempts greater than new student's attempts
+    while (cur->next != NULL && cur->next->attempts > new_student->attempts) {
         cur = cur->next;
     }
-    // Move forward past participants with same retries to maintain first come, first serve
-    while (cur->next != NULL && cur->next->retry_count == new_participant->retry_count) {
+    // Move forward past students with same number of attempts to maintain first come, first serve
+    while (cur->next != NULL && cur->next->attempts == new_student->attempts) {
         cur = cur->next;
     }
 
     // Insert after cur
-    new_participant->next = cur->next;
-    cur->next = new_participant;
+    new_student->next = cur->next;
+    cur->next = new_student;
 
-    return list;
+    return registration;
 }
 
-struct participant * remove_participant(struct participant *list) {
-    if (list == NULL) {
+struct student * pop_student(struct student *registration) {
+    if (registration == NULL) {
         // Do nothing if the list is empty
-        return list;
+        return registration;
     }
-    // Print the information of the first participant
-    struct participant *first_participant = list;
+    // Print the information of the first student
+    struct student *first_student = registration;
 
     // Output format
     printf("|----------------------|----------------------|---------|-----|----------|\n");
-    printf("| Full Name            | ID                   | Grade   | Score | Retries |\n");
+    printf("| Name                 | NetID                | COP2510 | GPA | Attempts |\n");
     printf("|----------------------|----------------------|---------|-----|----------|\n");
-    printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", first_participant->full_name, first_participant->id, first_participant->course_grade, first_participant->performance_score, first_participant->retry_count);
+    printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", first_student->name, first_student->netid, first_student->cop2510_grade, first_student->gpa, first_student->attempts);
     printf("|----------------------|----------------------|---------|-----|----------|\n");
 
-    // Remove the participant from the list
-    list = first_participant->next;
-    free(first_participant);
+    // Remove the student from the queue
+    registration = first_student->next;
+    free(first_student);
 
-    return list;
+    return registration;
 }
 
-void display_participants(struct participant *list) {
-    if (list == NULL) {
+void list_students(struct student *registration) {
+    if (registration == NULL) {
         // Do nothing
         return;
     }
 
-    struct participant *cur = list;
+    struct student *cur = registration;
 
     // Output header
     printf("|----------------------|----------------------|---------|-----|----------|\n");
-    printf("| Full Name            | ID                   | Grade   | Score | Retries |\n");
+    printf("| Name                 | NetID                | COP2510 | GPA | Attempts |\n");
     printf("|----------------------|----------------------|---------|-----|----------|\n");
 
     while (cur != NULL) {
-        printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", cur->full_name, cur->id, cur->course_grade, cur->performance_score, cur->retry_count);
+        printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", cur->name, cur->netid, cur->cop2510_grade, cur->gpa, cur->attempts);
         printf("|----------------------|----------------------|---------|-----|----------|\n");
         cur = cur->next;
     }
 }
 
-void filter_min_score(struct participant *list, double min_score) {
+void list_gpa_min(struct student *registration, double min_gpa) {
     int found = 0;
-    struct participant *cur = list;
+    struct student *cur = registration;
 
     while (cur != NULL) {
-        if (cur->performance_score >= min_score) {
+        if (cur->gpa >= min_gpa) {
             if (!found) {
                 // Output header
                 printf("|----------------------|----------------------|---------|-----|----------|\n");
-                printf("| Full Name            | ID                   | Grade   | Score | Retries |\n");
+                printf("| Name                 | NetID                | COP2510 | GPA | Attempts |\n");
                 printf("|----------------------|----------------------|---------|-----|----------|\n");
                 found = 1;
             }
-            printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", cur->full_name, cur->id, cur->course_grade, cur->performance_score, cur->retry_count);
+            printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", cur->name, cur->netid, cur->cop2510_grade, cur->gpa, cur->attempts);
             printf("|----------------------|----------------------|---------|-----|----------|\n");
         }
         cur = cur->next;
     }
+    // If no students satisfy this condition, this function does nothing
 }
 
-void filter_min_grade(struct participant *list, int course_grade) {
+void list_cop2510_min(struct student *registration, int cop2510_grade) {
     int found = 0;
-    struct participant *cur = list;
-    char min_grade = toupper(course_grade);
+    struct student *cur = registration;
+    char min_grade = toupper(cop2510_grade);
     int min_grade_value = grade_value(min_grade);
 
     while (cur != NULL) {
-        int cur_grade_value = grade_value(cur->course_grade);
+        int cur_grade_value = grade_value(cur->cop2510_grade);
         if (cur_grade_value >= min_grade_value) {
             if (!found) {
                 // Output header
                 printf("|----------------------|----------------------|---------|-----|----------|\n");
-                printf("| Full Name            | ID                   | Grade   | Score | Retries |\n");
+                printf("| Name                 | NetID                | COP2510 | GPA | Attempts |\n");
                 printf("|----------------------|----------------------|---------|-----|----------|\n");
                 found = 1;
             }
-            printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", cur->full_name, cur->id, cur->course_grade, cur->performance_score, cur->retry_count);
+            printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n", cur->name, cur->netid, cur->cop2510_grade, cur->gpa, cur->attempts);
             printf("|----------------------|----------------------|---------|-----|----------|\n");
         }
         cur = cur->next;
     }
+    // If no students satisfy this condition, this function does nothing
 }
 
-struct participant * clear_list(struct participant *list) {
-    struct participant *cur = list;
+struct student * clear_queue(struct student *registration) {
+    struct student *cur = registration;
     while (cur != NULL) {
-        struct participant *temp = cur;
+        struct student *temp = cur;
         cur = cur->next;
         free(temp);
     }
