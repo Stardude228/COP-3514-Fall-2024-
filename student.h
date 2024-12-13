@@ -17,7 +17,7 @@ struct student {
 	struct student *next;
 };
 
-// function prototypes 
+// Function prototypes 
 
 void help();
 void read(char *name, char *netid, char *cop2510_grade, double *gpa, int *attempts);
