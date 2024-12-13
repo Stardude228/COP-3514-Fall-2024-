@@ -1,18 +1,8 @@
 #include <stdio.h>
 int main(void)
 {
-
+    return 0;
 }
-
-
-
-
-
-
-
-
-
-
 
 // LOWER CASE FUNCTION
 // printf("Enter the letter that should be lower cased: ");
@@ -149,3 +139,87 @@ int main(void)
 
 // printf("The largest: %d \n", max);
 // printf("The second largest: %d \n", s_max);
+
+
+
+
+
+
+// STRUCTURES
+
+// #include <stdio.h>
+// #define MAX_COLOR 255
+
+// struct color
+// {
+//     int red;
+//     int green;
+//     int blue;
+// };
+
+// struct color make_color(int red, int green, int blue) {
+//     struct color new_color;
+    
+//     if (red < 0) red = 0;
+//     if (red > 255) red = 255;
+//     new_color.red = red;
+    
+//     if (green < 0) green = 0;
+//     if (green > 255) green = 255;
+//     new_color.green = green;
+
+//     if (blue < 0) blue = 0;
+//     if (blue > 255) blue = 255;
+//     new_color.blue = blue;
+
+//     return new_color;
+// };
+
+// struct color brighter(struct color c) {
+//     if (c.red == 0) c.red = 3;
+//     if (c.green == 0) c.green = 3;
+//     if (c.blue == 0) c.blue = 3;
+
+//     c.red = c.red / 0.7;
+//     c.green = c.green / 0.7;
+//     c.blue = c.blue / 0.7;
+
+//     if (c.red > 255) c.red = 255;
+//     if (c.green > 255) c.green = 255;
+//     if (c.blue > 255) c.blue = 255;
+    
+//     return c;
+// };
+
+// int main(void)
+// {
+//     struct color magenta = {255, 0, 255};
+//     printf("Red: %d\n", magenta.red);
+//     printf("Green: %d\n", magenta.green);
+//     printf("Blue: %d\n", magenta.blue);
+
+//     struct color color2;
+//     printf("Color 2 red: ");
+//     scanf("%d", &color2.red);
+//     printf("Color 2 green: ");
+//     scanf("%d", &color2.green);
+//     printf("Color 2 blue: ");
+//     scanf("%d", &color2.blue);
+
+//     printf("Color 2 red: %d\n", color2.red);
+//     printf("Color 2 green: %d\n", color2.green);
+//     printf("Color 2 blue: %d\n", color2.blue);
+
+//     struct color gold = make_color (255, 215, 0);
+//     struct color brighter_gold = brighter (gold);
+
+//     printf("Gold red: %d\n", gold.red);
+//     printf("Gold green: %d\n", gold.green);
+//     printf("Gold blue: %d\n", gold.blue);
+
+//     printf("Brighter_gold red: %d\n", brighter_gold.red);
+//     printf("Brighter_gold green: %d\n", brighter_gold.green);
+//     printf("Brighter_gold blue: %d\n", brighter_gold.blue);
+
+//     return 0;
+// }
