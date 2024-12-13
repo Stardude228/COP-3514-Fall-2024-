@@ -10,7 +10,7 @@
 #include <ctype.h>
 #include "student.h"
 
-void showUsageGuide() {
+void help() {
 	printf("List of operation codes:\n");
 	printf("\t'h' for help;\n");
 	printf("\t'a' for adding a student to the queue;\n");
@@ -21,163 +21,182 @@ void showUsageGuide() {
 	printf("\t'q' to quit.\n");
 }
 
-void inputStudentInfo(char *studentName, char *universityID, char *gradeAchieved, double *cumulativeGPA, int *retryAttempts) {
-    if (studentName != NULL) {
+void read(char *name, char *netid, char *cop2510_grade, double *gpa, int *attempts) {
+	if(name != NULL) {
 		printf("Enter the name of the student: ");
-        scanf("%[^\n]", studentName);
-    }
-    if (universityID != NULL) {
+		scanf("%[^\n]", name);
+	}
+	if(netid != NULL) {
 		printf("Enter the NetID of the student: ");
-        scanf("%s", universityID);
-    }
-    if (gradeAchieved != NULL) {
+		scanf("%s", netid);
+	}
+	if(cop2510_grade != NULL) {
 		printf("Enter the COP2510 letter grade: ");
-        scanf(" %c", gradeAchieved);
-    }
-    if (cumulativeGPA != NULL) {
+		scanf(" %c", cop2510_grade);
+	}
+	if(gpa != NULL) {
 		printf("Enter the GPA: ");
-        scanf("%lf", cumulativeGPA);
-    }
-    if (retryAttempts != NULL) {
+		scanf("%lf", gpa);
+	}
+	if(attempts != NULL) {
 		printf("Enter the number of previous attempts: ");
-        scanf("%d", retryAttempts);
-    }
+		scanf("%d", attempts);
+	}
 }
 
-struct StudentData * registerStudent(struct StudentData *currentList, char *studentName, char *universityID, char gradeAchieved, double cumulativeGPA, int retryAttempts) {
-    struct StudentData *newStudent = malloc(sizeof(struct StudentData));
-    if (newStudent == NULL) {
-        return currentList;
+struct student * add_student(struct student *registration, char *name, char *netid, char cop2510_grade, double gpa, int attempts) {
+
+	// Nodes are appended to the linked list to maintain their sequential order.
+	struct student *new_student = malloc(sizeof(struct student));
+    if (new_student == NULL) {
+        return registration;  
     }
 
-    strcpy(newStudent->studentName, studentName);
-    strcpy(newStudent->universityID, universityID);
-    newStudent->gradeAchieved = gradeAchieved;
-    newStudent->cumulativeGPA = cumulativeGPA;
-    newStudent->retryAttempts = retryAttempts;
-    newStudent->nextEntry = NULL;
+    // Fill in the details of the new student
+    strcpy(new_student->name, name);
+    strcpy(new_student->netid, netid);
+    new_student->cop2510_grade = cop2510_grade;
+    new_student->gpa = gpa;
+    new_student->attempts = attempts;
+    new_student->next = NULL;
 
-    if (currentList == NULL) {
-        return newStudent;
+    // If the list is empty, insert as the first node
+    if (registration == NULL) {
+        return new_student;
     }
 
-    if (retryAttempts > currentList->retryAttempts) {
-        newStudent->nextEntry = currentList;
-        return newStudent;
+    // If the new student's attempts are greater than the first student, add to the beginning
+    if (attempts > registration->attempts) {
+        new_student->next = registration;
+        return new_student;  // New student becomes the first node.
     }
 
-    struct StudentData *current = currentList;
-    while (current->nextEntry != NULL && current->nextEntry->retryAttempts >= retryAttempts) {
-        current = current->nextEntry;
+    //Traverse the list to find the correct position
+    struct student *current = registration;
+    while (current->next != NULL && current->next->attempts >= attempts) {
+        if (current->next->attempts > attempts) {
+            // Moving forward to maintain descending order
+            current = current->next;
+        } else {
+            // Stop when we reach the last student with the same number of attempts
+            while (current->next != NULL && current->next->attempts == attempts) {
+                current = current->next;
+            }
+            break;  // Exit when the right position is found
+        }
     }
 
-    newStudent->nextEntry = current->nextEntry;
-    current->nextEntry = newStudent;
+    // Insert the new student at the correct position
+    new_student->next = current->next;
+    current->next = new_student;
 
-    return currentList;
+    return registration;
 }
 
-struct StudentData * deleteStudent(struct StudentData *currentList) {
-    if (currentList == NULL) {
+struct student * pop_student(struct student *registration) {
+    if (registration == NULL) {
         return NULL;
     }
 
-    struct StudentData *toRemove = currentList;
-    if (toRemove->studentName[0] != '\0' && toRemove->universityID[0] != '\0') {
+    struct student *to_pop = registration;
+    // To make sure no empty row is printed.
+    if (to_pop->name[0] != '\0' && to_pop->netid[0] != '\0') {
         printf("|----------------------|----------------------|---------|-----|----------|\n");
         printf("| Name                 | NetID                | COP2510 | GPA | Attempts |\n");
         printf("|----------------------|----------------------|---------|-----|----------|\n");
         printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n",
-            toRemove->studentName, toRemove->universityID, toRemove->gradeAchieved, toRemove->cumulativeGPA, toRemove->retryAttempts);
+            to_pop->name, to_pop->netid, to_pop->cop2510_grade, to_pop->gpa, to_pop->attempts);
         printf("|----------------------|----------------------|---------|-----|----------|\n");
     }
 
-    currentList = currentList->nextEntry;
-    free(toRemove);
-    return currentList;
+    registration = registration->next;  
+    free(to_pop);  
+    return registration;
 }
 
-void printStudentList(struct StudentData *currentList) {
-    if (currentList == NULL) {
+void list_students(struct student *registration) {
+    if (registration == NULL) { //To make sure if an empty list is recieved the function does nothing.
         return;
     }
 
-    struct StudentData *current = currentList;
-    int headerPrinted = 0;
+    struct student *c = registration;
+    int hp = 0;
 
-    while (current) {
-        if (current->studentName[0] != '\0' && current->universityID[0] != '\0') {
-            if (!headerPrinted) {
+    while (c) {
+        
+        if (c->name[0] != '\0' && c->netid[0] != '\0') {
+            if (!hp) {
                 printf("|----------------------|----------------------|---------|-----|----------|\n");
                 printf("| Name                 | NetID                | COP2510 | GPA | Attempts |\n");
                 printf("|----------------------|----------------------|---------|-----|----------|\n");
-                headerPrinted = 1;
-            }
-            printf("| %-22s | %-22s |   %c   | %1.1f | %9d |\n",
-                current->studentName, current->universityID, current->gradeAchieved, current->cumulativeGPA, current->retryAttempts);
-            printf("|----------------------|----------------------|---------|-----|----------|\n");
-        }
-        current = current->nextEntry;
-    }
-}
-
-void filterByGPA(struct StudentData *currentList, double gpaThreshold) {
-    if (currentList == NULL) {
-        return;
-    }
-
-    struct StudentData *current = currentList;
-    int headerPrinted = 0;
-
-    while (current) {
-        if (current->cumulativeGPA >= gpaThreshold && current->studentName[0] != '\0' && current->universityID[0] != '\0') {
-            if (!headerPrinted) {
-                printf("|----------------------|----------------------|---------|-----|----------|\n");
-                printf("| Name                 | NetID                | COP2510 | GPA | Attempts |\n");
-                printf("|----------------------|----------------------|---------|-----|----------|\n");
-                headerPrinted = 1;
+                hp = 1;
             }
             printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n",
-                current->studentName, current->universityID, current->gradeAchieved, current->cumulativeGPA, current->retryAttempts);
+                c->name, c->netid, c->cop2510_grade, c->gpa, c->attempts);
             printf("|----------------------|----------------------|---------|-----|----------|\n");
         }
-        current = current->nextEntry;
+        c = c->next;
     }
 }
 
-void filterByGrade(struct StudentData *currentList, int gradeThreshold) {
-    if (currentList == NULL) {
+void list_gpa_min(struct student *registration, double gpa) {
+    if (registration == NULL) { 
         return;
     }
 
-    struct StudentData *current = currentList;
-    int headerPrinted = 0;
+    struct student *c = registration;
+    int hp = 0;
 
-    while (current) {
-        if (current->gradeAchieved <= gradeThreshold && current->studentName[0] != '\0' && current->universityID[0] != '\0') {
-            if (!headerPrinted) {
+    while (c) {
+        if (c->gpa >= gpa && c->name[0] != '\0' && c->netid[0] != '\0') {
+            if (!hp) {
                 printf("|----------------------|----------------------|---------|-----|----------|\n");
                 printf("| Name                 | NetID                | COP2510 | GPA | Attempts |\n");
                 printf("|----------------------|----------------------|---------|-----|----------|\n");
-                headerPrinted = 1;
+                hp = 1;
             }
             printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n",
-                current->studentName, current->universityID, current->gradeAchieved, current->cumulativeGPA, current->retryAttempts);
+                c->name, c->netid, c->cop2510_grade, c->gpa, c->attempts);
             printf("|----------------------|----------------------|---------|-----|----------|\n");
         }
-        current = current->nextEntry;
+        c = c->next;
     }
 }
 
-struct StudentData * resetList(struct StudentData *currentList) {
-    if (currentList == NULL) {
+void list_cop2510_min(struct student *registration, int cop2510_grade) {
+    if (registration == NULL) { // Check if the list is empty
+        return;
+    }
+
+    struct student *c = registration;
+    int hp = 0;
+
+    while (c) {
+        if (c->cop2510_grade <= cop2510_grade &&
+            c->name[0] != '\0' && c->netid[0] != '\0') {
+            if (!hp) {
+                printf("|----------------------|----------------------|---------|-----|----------|\n");
+                printf("| Name                 | NetID                | COP2510 | GPA | Attempts |\n");
+                printf("|----------------------|----------------------|---------|-----|----------|\n");
+                hp = 1;
+            }
+            printf("| %-20s | %-20s |       %c | %1.1f | %8d |\n",
+                   c->name, c->netid, c->cop2510_grade, c->gpa, c->attempts);
+            printf("|----------------------|----------------------|---------|-----|----------|\n");
+        }
+        c = c->next;
+    }
+}
+
+struct student * clear_queue(struct student *registration) {
+    if (registration == NULL) { // Check if the list is empty
         return NULL;
     }
 
-    struct StudentData *current = currentList;
-    while (current) {
-        struct StudentData *temp = current;
-        current = current->nextEntry;
+    struct student *c = registration;
+    while (c) {
+        struct student *temp = c;
+        c = c->next;
         free(temp);
     }
     return NULL;

@@ -4,29 +4,27 @@
     /* Program Description: This header file defines data structures */
     /* and declares functions for student management operations. */
 /*************************************/
+#ifndef STUDENT_H
+#define STUDENT_H
 
-#ifndef STUDENT_DATA_H
-#define STUDENT_DATA_H
+#define NAME_LEN 100
+#define NETID_LEN 40
 
-#define NAME_BUFFER_SIZE 100
-#define ID_BUFFER_SIZE 40
-
-struct StudentData {
-    char studentName[NAME_BUFFER_SIZE + 1], universityID[ID_BUFFER_SIZE + 1], gradeAchieved;
-    double cumulativeGPA;
-    int retryAttempts;
-    struct StudentData *nextEntry;
+struct student {
+	char name[NAME_LEN+1], netid[NETID_LEN+1], cop2510_grade;
+	double gpa;
+	int attempts;
+	struct student *next;
 };
 
-// Function Declarations
+// function prototypes 
 
-void showUsageGuide();
-void inputStudentInfo(char *studentName, char *universityID, char *gradeAchieved, double *cumulativeGPA, int *retryAttempts);
-struct StudentData * registerStudent(struct StudentData *currentList, char *studentName, char *universityID, char gradeAchieved, double cumulativeGPA, int retryAttempts);
-struct StudentData * deleteStudent(struct StudentData *currentList);
-void printStudentList(struct StudentData *currentList);
-void filterByGPA(struct StudentData *currentList, double gpaThreshold);
-void filterByGrade(struct StudentData *currentList, int gradeThreshold);
-struct StudentData * resetList(struct StudentData *currentList);
-
+void help();
+void read(char *name, char *netid, char *cop2510_grade, double *gpa, int *attempts);
+struct student * add_student(struct student *registration, char *name, char *netid, char cop2510_grade, double gpa, int attempts);
+struct student * pop_student(struct student *registration);
+void list_students(struct student *registration);
+void list_gpa_min(struct student *registration, double gpa);
+void list_cop2510_min(struct student *registration, int cop2510_grade);
+struct student * clear_queue(struct student *registration);
 #endif

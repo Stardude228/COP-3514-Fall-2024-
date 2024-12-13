@@ -6,7 +6,6 @@
     /* files. Specifically, the program is now organized into a header file */
     /* named student.h and a corresponding source file, student.c. */
 /*************************************/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,50 +13,52 @@
 #include "student.h"
 
 int main() {
-    char operationCode;
-    char studentName[NAME_BUFFER_SIZE + 1], universityID[ID_BUFFER_SIZE + 1], gradeAchieved;
-    double cumulativeGPA;
-    int retryAttempts;
+	char code;
+	char name[NAME_LEN+1], netid[NETID_LEN+1], cop2510_grade;
+	double gpa;
+	int attempts;
 
-    struct StudentData *recordList = NULL;
+	struct student *registration = NULL;
 
-    showUsageGuide();
-    printf("\n");
+	help();
+	printf("\n");
 
-    while (1) {
-        // Read operation code
+	for (;;) {
+		// Reading the code
 		printf("Enter operation code: ");
-        scanf(" %c", &operationCode);
-        while (getchar() != '\n'); /* skip to end of line */
-        // Execute operation
-        switch (operationCode) {
-            case 'h':
-                showUsageGuide();
-                break;
-            case 'a':
-                inputStudentInfo(studentName, universityID, &gradeAchieved, &cumulativeGPA, &retryAttempts);
-                recordList = registerStudent(recordList, studentName, universityID, gradeAchieved, cumulativeGPA, retryAttempts);
-                break;
-            case 'r':
-                recordList = deleteStudent(recordList);
-                break;
-            case 'd':
-                printStudentList(recordList);
-                break;
-            case 'g':
-                inputStudentInfo(NULL, NULL, NULL, &cumulativeGPA, NULL);
-                filterByGPA(recordList, cumulativeGPA);
-                break;
-            case 'f':
-                inputStudentInfo(NULL, NULL, &gradeAchieved, NULL, NULL);
-                filterByGrade(recordList, gradeAchieved);
-                break;
-            case 'q':
-                recordList = resetList(recordList);
-                return 0;
-            default:
-                printf("Invalid operation code!\n");
-        }
-        printf("\n");
-    }
+		scanf(" %c", &code);
+        // Skipping
+		while(getchar() != '\n');
+
+		// Starting the code
+		switch (code) {
+			case 'h':
+				help();
+				break;
+			case 'a':
+				read(name, netid, &cop2510_grade, &gpa, &attempts);
+				registration = add_student(registration, name, netid, cop2510_grade, gpa, attempts);
+				break;
+			case 'p':
+				registration = pop_student(registration);
+				break;
+			case 'l':
+				list_students(registration);
+				break;
+			case 'g':
+				read(NULL, NULL, NULL, &gpa, NULL);
+				list_gpa_min(registration, gpa);
+				break;
+			case 'c':
+				read(NULL, NULL, &cop2510_grade, NULL, NULL);
+				list_cop2510_min(registration, cop2510_grade);
+				break;
+			case 'q':
+				registration = clear_queue(registration);
+				return 0;
+			default:
+				printf("Illegal operation code!\n");
+		}
+		printf("\n");
+	}
 }
